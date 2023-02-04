@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-md-12 mx-auto mt-4">
+  <h1 class="display-5 text-center">QRCode Image generator</h1>
+  <form>
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="url">URL</label>
+      <input type="text" class="form-control" id="url" placeholder="Enter url">
+      <div class="invalid-feedback">
+        URL field is required to generate QRImage
+      </div>
+    </div>
+    <div class="d-grid">
+      <input type="submit" value="Submit" class="btn btn-primary mt-3">
+    </div>
+  </form>
+
+  <div class="modal fade" data-bs-backdrop="static" tabindex="-1" role="dialog" id="modalId">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <a class="modal-title" id="title" target="_blank"></a>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a type="button" id='download_link' download class="btn btn-primary" id="save_data">Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 text-center card-body" id="qrcode">
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts%}
+<script>
+  window._preloder = function(){
+  };
+  $(document).ready(()=>{
+    $("input[type='submit']").on("click", (e)=>{
+      e.preventDefault();
+      if($("#url").val().length<=0){
+        $("#url").addClass("is-invalid");
+        $("#url").focus()
+      }else{
+        $("#url").removeClass("is-invalid");
+        $.ajax({
+          url:"{% url 'qrcode-generator' %}",
+          type:"POST",
+          data:{
+            csrfmiddlewaretoken:$("input[name='csrfmiddlewaretoken']").val(),
+            url:$("input[type='text']").val()
+          },
+          beforeSend:()=>{
+            _preloder();
+          },
+          success:(res)=>{
+            let title = $("#url").val();
+            $("input[type='text']").val("");
+            console.log(res);
+            let image_url = `${res.origin}/media/${res.image_url.image}`;
+            console.log(title)
+            $("#title").text(title);
+            $("#title").css({
+              textDecoration:"none",
+              fontSize:"20px",
+            })
+            $("#title").attr("href", title);
+            $("#download_link").attr("href", image_url);
+            $("#modalId").modal("show");
+            $(".modal-body").html(`<img src=${image_url} alt="">`);
+          },
+        })
+      }
+    });
+  });
+</script>
+{% endblock scripts%}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="col-md-6 col-sm-12 mx-auto my-5">
+    <div class="modal fade" data-bs-backdrop="static" tabindex="-1" role="dialog" id="modalId">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save_data">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form>
+      {% csrf_token %}
+      <input type="text" name="" class="form-control" value="" placeholder="Predict name">
+      <input type="submit" value="Submit" class="btn btn-primary mt-3">
+    </form>
+    <div id="predict" style="display:none;">
+
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts%}
+<script>
+  $(document).ready(()=>{
+    window._preloder = function(){
+      console.log("Preloder");
+      $("body").append(`<div class="bg-primary" id="preloder"></div>`);
+    }
+    window._uni_model = function(name, body=""){
+      $("#title").text(name);
+      $(".modal-body").html(body);
+      $("#modalId").modal("show");
+    }
+    $("input[type='submit']").on("click",(e)=>{
+      e.preventDefault();
+      $.ajax({
+        url:"{% url 'json' %}",
+        type:"POST",
+        data:{
+          csrfmiddlewaretoken:$("input[name='csrfmiddlewaretoken']").val(),
+          name:$("input[type='text']").val()
+        },
+        beforeSend:()=>{
+          _preloder();
+          console.log("Hello")
+        },
+        success:(res)=>{
+          const form = `
+            <form>
+              <div class="form-group">
+                <label for="fname">First name</label>
+                <input type="text" name="" id="fname" value="" class="form-control">
+              </div>
+              <div class="form-group my-3">
+                <label for="sname">Middle name</label>
+                <input type="text" name="" id="sname" value="" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="lname">Last name</label>
+                <input type="text" name="" id="lname" value="" class="form-control">
+              </div>
+            </form>
+          `;
+          _uni_model(`Chance for ${res.name}`, form);
+          console.log(res)
+          if(res.name==$("input[type='text']").val()){
+            $("#predict").attr("class", "alert alert-success text-center");
+            $("#predict").css({
+              display:"block",
+              margin:"4px 0px 0px 0px"
+            });
+            $("#predict").text(`You win...! You gues the correct name ${res.name}.`);
+          }else{
+            $("#predict").css({
+              display:"block",
+              margin:"4px 0px 0px 0px"
+            });
+            $("#predict").text(`Loose...! Name was ${res.name}`);
+            $("#predict").attr("class", "alert alert-danger text-center");
+          }
+          $("input[type='text']").val("");
+        }
+      })
+    });
+
+    $("#save_data").click((e)=>{
+      console.log(e);
+    })
+  });
+</script>
+{% endblock scripts%}
