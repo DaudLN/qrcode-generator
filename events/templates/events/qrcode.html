@@ -3,7 +3,8 @@
 {% block content %}
 <div class="">
   <h1 class="display-5 text-center">QRCode Image generator</h1>
-  <form class="col-md-6 mx-auto mt-4">
+  <div class="col-md-8 mx-auto mt-4">
+  <form>
     {% csrf_token %}
     <div class="form-group">
       <label for="url">URL</label>
@@ -16,6 +17,7 @@
       <input type="submit" value="Submit" class="btn btn-primary mt-3">
     </div>
   </form>
+  </div>
 
   <div class="modal fade" data-bs-backdrop="static" tabindex="-1" role="dialog" id="modalId">
     <div class="modal-dialog">
