@@ -25,7 +25,8 @@ SECRET_KEY = "django-insecure--=97ltj&o-v$krdh!ixb&8&g(m2+lzk#^5anb7*1s9s#iykl_q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['namayala-chatopenai.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://namayala-chatopenai.up.railway.app']
 
 
 # Application definition
